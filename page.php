@@ -35,6 +35,7 @@ abstract class Page {
     protected abstract function generateViewCreate(): string;
     protected abstract function addNew(): void;
     protected abstract function edit(): void;
+    protected abstract function delete(): void;
 
     protected function generateHead():string{
         return '<!DOCTYPE html>
@@ -86,7 +87,7 @@ abstract class Page {
         }
     }
 
-    public function initialize():void {
+    public function initialize(): void {
         print_r($_POST);
         echo $this->generateHead();
         switch($_POST[self::ACTION] ?? null) {
@@ -96,7 +97,7 @@ abstract class Page {
                 echo "Dodanie do bazy danych";
                 break;
             case self::EDIT:
-                $this-> edit();
+                $this->edit();
                 echo $this->generateViewAll();
                 echo "Edycja w bazie danych";
                 break;
@@ -109,8 +110,8 @@ abstract class Page {
                 echo "Dodanie widoku";
                 break;
             case self::DELETE:
-                //todo usuwanie
-                echo $this-> generateViewAll();
+                $this->delete();
+                echo $this->generateViewAll();
                 echo "Usuwanie z bazy danych";
                 break;
             default:
@@ -118,10 +119,6 @@ abstract class Page {
                 echo "Wyświetl wszystkie";
                 break;
         }
-        echo $this -> generateFooter();
+        echo $this->generateFooter();
     }
-
-
-
-
-} 
+}

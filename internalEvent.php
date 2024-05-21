@@ -102,5 +102,5 @@ class InternalEvent extends Model
     {
         $this->MetaTags = $MetaTags;
     }
-    
 }
+?>
