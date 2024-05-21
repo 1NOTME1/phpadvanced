@@ -3,7 +3,8 @@
 require_once("./Page.php");
 require_once("./Task.php");
 
-class TaskPage extends Page {
+class TaskPage extends Page
+{
 
     private Task $model;
 
@@ -28,7 +29,8 @@ class TaskPage extends Page {
         return "Tasks";
     }
 
-    protected function generateHead(): string {
+    protected function generateHead(): string
+    {
         return '<!DOCTYPE html>
             <html>
             <head>
@@ -54,7 +56,7 @@ class TaskPage extends Page {
                     <div class="row">
                         <div class="col-sm-12">
                             <form method="POST">
-                                <button class="btn btn-primary" name="'.self::ACTION.'" value="'.self::CREATE_VIEW.'"> Create new </button>
+                                <button class="btn btn-primary" name="' . self::ACTION . '" value="' . self::CREATE_VIEW . '"> Create new </button>
                                 <button class="btn btn-primary">All</button>
                             </form>
                         </div>
@@ -62,7 +64,6 @@ class TaskPage extends Page {
                 </div>
                 </hr>';
     }
-    
 
     protected function enterModelDataFromForm(): void
     {
@@ -123,106 +124,177 @@ class TaskPage extends Page {
         return $stmt->fetchColumn() ?: 'Unknown';
     }
 
-    protected function generateViewEdit(): string {
+    protected function generateViewEdit(): string
+    {
         $id = $_POST['Id'] ?? 0;
         $task = $this->fetchById($id);
-    
+
+        $isDoneChecked = $task['IsDone'] ? 'checked' : '';
+
         return '
             <div class="container">
                 <form method="post">
                     <input type="hidden" name="Id" value="' . $task['Id'] . '">
-                    <!-- Add the rest of your form fields here, similar to create form, pre-filled with $task values -->
-                    <button class="btn btn-primary" name="' . self::ACTION . '" value="' . self::EDIT . '">Update</button>
+                    <div class="row gy-3">
+                        <div class="col-md-12 col-lg-6 col-xxl-4">
+                            <div class="input-group">
+                                <label class="input-group-text">
+                                    <i class="material-icons-round align-middle">label</i>
+                                    Title
+                                </label>
+                                <input class="form-control validate" name="Title" value="' . $task['Title'] . '">
+                            </div>
+                        </div>
+                        <div class="col-md-12 col-lg-6 col-xxl-4">
+                            <div class="input-group">
+                                <label class="input-group-text">
+                                    <i class="material-icons-round align-middle">event</i>
+                                    Event
+                                </label>
+                                <select class="form-control validate" name="InternalEventId">' .
+            $this->generateEventOptions($task['InternalEventId']) . '
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-12 col-lg-6 col-xxl-4">
+                            <div class="row">
+                                <div class="col-auto">
+                                    <label class="form-check-label">
+                                        Done
+                                        <i class="material-icons-round align-middle">check</i>
+                                    </label>
+                                </div>
+                                <div class="form-switch form-check col-auto">
+                                    <input class="form-check-input validate" type="checkbox" name="IsDone" ' . $isDoneChecked . '>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 col-lg-6 col-xxl-4">
+                            <div class="input-group">
+                                <label class="input-group-text">
+                                    <i class="material-icons-round palette-accent-text-color align-middle">event</i>
+                                    Start date
+                                </label>
+                                <input class="form-control validate" type="date" name="StartDateTime" value="' . $task['StartDateTime'] . '">
+                            </div>
+                        </div>
+                        <div class="col-md-12 col-lg-6 col-xxl-4">
+                            <div class="input-group">
+                                <label class="input-group-text">
+                                    <i class="material-icons-round palette-accent-text-color align-middle">today</i>
+                                    Deadline
+                                </label>
+                                <input class="form-control validate" type="date" name="Deadline" value="' . $task['Deadline'] . '">
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <label class="form-label">
+                                <i class="material-icons-round palette-accent-text-color align-middle">description</i>
+                                Description
+                            </label>
+                            <textarea class="form-control validate" name="Description">' . $task['Description'] . '</textarea>
+                        </div>
+                        <div class="col-sm-12">
+                            <label class="form-label">
+                                <i class="material-icons-round palette-accent-text-color align-middle">notes</i>
+                                Notes
+                            </label>
+                            <textarea class="form-control validate" name="Notes">' . $task['Notes'] . '</textarea>
+                        </div>
+                        <div class="col-sm-12">
+                            <button class="btn btn-primary" name="' . self::ACTION . '" value="' . self::EDIT . '">Update</button>
+                        </div>
+                    </div>
                 </form>
             </div>';
     }
-    
-    protected function fetchById(int $id): array {
+
+    protected function fetchById(int $id): array
+    {
         $query = "SELECT * FROM " . $this->getTableName() . " WHERE Id = :Id";
         $stmt = self::openConnection()->prepare($query);
         $stmt->bindValue(':Id', $id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-    
 
     protected function generateViewCreate(): string
     {
         return '
-        <div class="container">
-            <form method="post">
-                <div class="row gy-3">
-                    <div class="col-md-12 col-lg-6 col-xxl-4">
-                        <div class="input-group">
-                            <label class="input-group-text">
-                                <i class="material-icons-round align-middle">label</i>
-                                Title
-                            </label>
-                            <input class="form-control validate" name="Title">
-                        </div>
-                    </div>
-                    <div class="col-md-12 col-lg-6 col-xxl-4">
-                        <div class="input-group">
-                            <label class="input-group-text">
-                                <i class="material-icons-round align-middle">event</i>
-                                Event
-                            </label>
-                            <select class="form-control validate" name="InternalEventId">'.
-                            $this->generateEventOptions().'
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-12 col-lg-6 col-xxl-4">
-                        <div class="row">
-                            <div class="col-auto">
-                                <label class="form-check-label">
-                                    Done
-                                    <i class="material-icons-round align-middle">check</i>
-                                </label>
-                            </div>
-                            <div class="form-switch form-check col-auto">
-                                <input class="form-check-input validate" type="checkbox" name="IsDone">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12 col-lg-6 col-xxl-4">
-                        <div class="input-group">
-                            <label class="input-group-text">
-                                <i class="material-icons-round palette-accent-text-color align-middle">event</i>
-                                Start date
-                            </label>
-                            <input class="form-control validate" type="date" name="StartDateTime">
-                        </div>
-                    </div>
-                    <div class="col-md-12 col-lg-6 col-xxl-4">
-                        <div class="input-group">
-                            <label class="input-group-text">
-                                <i class="material-icons-round palette-accent-text-color align-middle">today</i>
-                                Deadline
-                            </label>
-                            <input class="form-control validate" type="date" name="Deadline">
-                        </div>
-                    </div>
-                    <div class="col-sm-12">
-                        <label class="form-label">
-                            <i class="material-icons-round palette-accent-text-color align-middle">description</i>
-                            Description
+    <div class="container">
+        <form method="post">
+            <div class="row gy-3">
+                <div class="col-md-12 col-lg-6 col-xxl-4">
+                    <div class="input-group">
+                        <label class="input-group-text">
+                            <i class="material-icons-round align-middle">label</i>
+                            Title
                         </label>
-                        <textarea class="form-control validate" name="Description"></textarea>
-                    </div>
-                    <div class="col-sm-12">
-                        <label class="form-label">
-                            <i class="material-icons-round palette-accent-text-color align-middle">notes</i>
-                            Notes
-                        </label>
-                        <textarea class="form-control validate" name="Notes"></textarea>
-                    </div>
-                    <div class="col-sm-12">
-                        <button class="btn btn-primary" name="'.self::ACTION.'" value="'.self::ADD_NEW.'">Create</button>
+                        <input class="form-control validate" name="Title">
                     </div>
                 </div>
-            </form>
-        </div>';
+                <div class="col-md-12 col-lg-6 col-xxl-4">
+                    <div class="input-group">
+                        <label class="input-group-text">
+                            <i class="material-icons-round align-middle">event</i>
+                            Event
+                        </label>
+                        <select class="form-control validate" name="InternalEventId">' .
+            $this->generateEventOptions() . '
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-12 col-lg-6 col-xxl-4">
+                    <div class="row">
+                        <div class="col-auto">
+                            <label class="form-check-label">
+                                Done
+                                <i class="material-icons-round align-middle">check</i>
+                            </label>
+                        </div>
+                        <div class="form-switch form-check col-auto">
+                            <input class="form-check-input validate" type="checkbox" name="IsDone">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 col-lg-6 col-xxl-4">
+                    <div class="input-group">
+                        <label class="input-group-text">
+                            <i class="material-icons-round palette-accent-text-color align-middle">event</i>
+                            Start date
+                        </label>
+                        <input class="form-control validate" type="date" name="StartDateTime">
+                    </div>
+                </div>
+                <div class="col-md-12 col-lg-6 col-xxl-4">
+                    <div class="input-group">
+                        <label class="input-group-text">
+                            <i class="material-icons-round palette-accent-text-color align-middle">today</i>
+                            Deadline
+                        </label>
+                        <input class="form-control validate" type="date" name="Deadline">
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <label class="form-label">
+                        <i class="material-icons-round palette-accent-text-color align-middle">description</i>
+                        Description
+                    </label>
+                    <textarea class="form-control validate" name="Description"></textarea>
+                </div>
+                <div class="col-sm-12">
+                    <label class="form-label">
+                        <i class="material-icons-round palette-accent-text-color align-middle">notes</i>
+                        Notes
+                    </label>
+                    <textarea class="form-control validate" name="Notes"></textarea>
+                </div>
+                <div class="col-sm-12">
+                    <button class="btn btn-primary" name="' . self::ACTION . '" value="' . self::ADD_NEW . '">Create</button>
+                </div>
+            </div>
+        </form>
+    </div>';
     }
 
     protected function generateEventOptions(): string
@@ -242,8 +314,8 @@ class TaskPage extends Page {
     {
         $this->enterModelDataFromForm();
         $query = "INSERT INTO " . $this->getTableName() . " 
-        (Title, IsDone, StartDateTime, Description, Deadline, InternalEventId, CreationDateTime, EditDateTime, Notes, IsActive)
-        VALUES (:Title, :IsDone, :StartDateTime, :Description, :Deadline, :InternalEventId, CURDATE(), CURDATE(), :Notes, 1)";
+    (Title, IsDone, StartDateTime, Description, Deadline, InternalEventId, CreationDateTime, EditDateTime, Notes, IsActive)
+    VALUES (:Title, :IsDone, :StartDateTime, :Description, :Deadline, :InternalEventId, CURDATE(), CURDATE(), :Notes, 1)";
 
         $stmt = self::openConnection()->prepare($query);
         $stmt->bindValue(":Title", $this->getModel()->getTitle(), PDO::PARAM_STR);
@@ -257,14 +329,15 @@ class TaskPage extends Page {
         $stmt->execute();
     }
 
-    protected function edit(): void {
+    protected function edit(): void
+    {
         $this->enterModelDataFromForm();
         $query = "UPDATE " . $this->getTableName() . " 
-                  SET Title = :Title, IsDone = :IsDone, StartDateTime = :StartDateTime, 
-                      Description = :Description, Deadline = :Deadline, InternalEventId = :InternalEventId, 
-                      EditDateTime = CURDATE(), Notes = :Notes 
-                  WHERE Id = :Id";
-    
+              SET Title = :Title, IsDone = :IsDone, StartDateTime = :StartDateTime, 
+                  Description = :Description, Deadline = :Deadline, InternalEventId = :InternalEventId, 
+                  EditDateTime = CURDATE(), Notes = :Notes 
+              WHERE Id = :Id";
+
         $stmt = self::openConnection()->prepare($query);
         $stmt->bindValue(":Title", $this->getModel()->getTitle(), PDO::PARAM_STR);
         $stmt->bindValue(":IsDone", $this->getModel()->getIsDone(), PDO::PARAM_BOOL);
@@ -274,12 +347,12 @@ class TaskPage extends Page {
         $stmt->bindValue(":InternalEventId", $this->getModel()->getInternalEventId(), PDO::PARAM_INT);
         $stmt->bindValue(":Notes", $this->getModel()->getNotes(), PDO::PARAM_STR);
         $stmt->bindValue(":Id", $this->getModel()->getId(), PDO::PARAM_INT);
-    
+
         $stmt->execute();
     }
-    
 
-    protected function delete(): void {
+    protected function delete(): void
+    {   
         $id = intval($_POST['Id'] ?? 0);
         if ($id > 0) {
             $query = "UPDATE " . $this->getTableName() . " SET IsActive = 0 WHERE Id = :Id";
@@ -288,7 +361,4 @@ class TaskPage extends Page {
             $stmt->execute();
         }
     }
-    
-    
 }
-?>
