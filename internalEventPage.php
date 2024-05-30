@@ -3,13 +3,11 @@
 require_once("./Page.php");
 require_once("./internalEvent.php");
 
-class InternalEventPage extends Page {
+class InternalEventPage extends Page
+{
 
     private InternalEvent $model;
 
-    /**
-     * Get the value of model
-     */
     public function getModel()
     {
         return $this->model;
@@ -22,19 +20,22 @@ class InternalEventPage extends Page {
     public function setModel($model)
     {
         $this->model = $model;
- 
+
         return $this;
     }
 
-    protected function passTitle():string{
+    protected function passTitle(): string
+    {
         return "Internal Event";
     }
 
-    protected function passTableName(): string{
+    protected function passTableName(): string
+    {
         return "InternalEvents";
     }
 
-    protected function generateHead(): string {
+    protected function generateHead(): string
+    {
         return '<!DOCTYPE html>
             <html>
             <head>
@@ -60,8 +61,8 @@ class InternalEventPage extends Page {
                     <div class="row">
                         <div class="col-sm-12">
                             <form method="POST">
-                                <button class="btn btn-primary" name="'.self::ACTION.'" value="'.self::CREATE_VIEW.'"> Create new </button>
-                                <button class="btn btn-primary" name="'.self::ACTION.'" value="">All</button>
+                                <button class="btn btn-primary" name="' . self::ACTION . '" value="' . self::CREATE_VIEW . '"> Create new </button>
+                                <button class="btn btn-primary" name="' . self::ACTION . '" value="">All</button>
                             </form>
                         </div>
                     </div>
@@ -69,14 +70,15 @@ class InternalEventPage extends Page {
                 </hr>';
     }
 
-    protected function enterModelDataFromForm(): void {
+    protected function enterModelDataFromForm(): void
+    {
         $_POST["Title"];
         $model = new InternalEvent();
         $model->setTitle($_POST["Title"]);
         $model->setLink($_POST["Link"]);
         $model->setPublishDateTime($_POST["PublishDateTime"]);
         $model->setEventDateTime($_POST["EventDateTime"]);
-        $model->setIsPublic($_POST["IsPublic"] ?? false); 
+        $model->setIsPublic($_POST["IsPublic"] ?? false);
         $model->setIsCancelled($_POST["IsCancelled"] ?? false);
         $model->setShortDescription($_POST["ShortDescription"]);
         $model->setContentHTML($_POST["ContentHTML"]);
@@ -90,13 +92,15 @@ class InternalEventPage extends Page {
         $this->setModel($model);
     }
 
-    protected function fetchAll(): array {
+    protected function fetchAll(): array
+    {
         $query = "SELECT * FROM " . $this->getTableName() . " WHERE IsActive = 1";
-        $stmt = self::openConnection()->query($query);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $query = self::openConnection()->query($query);
+        return $query->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    protected function generateViewAll(): string {
+    protected function generateViewAll(): string
+    {
         $events = $this->fetchAll();
         $html = "<div class='container'><table class='table'>";
         $html .= "<thead><tr><th>Id</th><th>Title</th><th>Link</th><th>Is Public</th><th>Is Cancelled</th><th>Actions</th></tr></thead><tbody>";
@@ -122,10 +126,11 @@ class InternalEventPage extends Page {
         return $html;
     }
 
-    protected function generateViewEdit(): string {
+    protected function generateViewEdit(): string
+    {
         $id = $_POST['Id'] ?? 0;
         $event = $this->fetchById($id);
-    
+
         return '
             <div class="container">
                 <form method="post">
@@ -242,18 +247,20 @@ class InternalEventPage extends Page {
                     </div>
                     </form>
                 </div>';
-        }
-    
-    
-    protected function fetchById(int $id): array {
-        $query = "SELECT * FROM " . $this->getTableName() . " WHERE Id = :Id";
-        $stmt = self::openConnection()->prepare($query);
-        $stmt->bindValue(':Id', $id, PDO::PARAM_INT);
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    protected function generateViewCreate(): string {
+
+    protected function fetchById(int $id): array
+    {
+        $query = "SELECT * FROM " . $this->getTableName() . " WHERE Id = :Id";
+        $query = self::openConnection()->prepare($query);
+        $query->bindValue(':Id', $id, PDO::PARAM_INT);
+        $query->execute();
+        return $query->fetch(PDO::FETCH_ASSOC);
+    }
+
+    protected function generateViewCreate(): string
+    {
         return '
             <div class="container">
                 <form method="post">
@@ -364,15 +371,16 @@ class InternalEventPage extends Page {
                         <textarea class="form-control validate" name="Notes"></textarea>
                     </div>
                     <div class="col-sm-12">
-                        <button class="btn btn-primary" name="'.self::ACTION.'" value="'.self::ADD_NEW.'">Create</button>
+                        <button class="btn btn-primary" name="' . self::ACTION . '" value="' . self::ADD_NEW . '">Create</button>
                     </div>
                 </div>
                 </form>
             </div>';
     }
 
-    protected function addNew(): void {
-        $this-> enterModelDataFromForm();
+    protected function addNew(): void
+    {
+        $this->enterModelDataFromForm();
         $query = "INSERT INTO " . $this->getTableName() . " 
         (Title, 
         Link, 
@@ -404,7 +412,7 @@ class InternalEventPage extends Page {
         CURDATE(),
         1)";
 
-        $query = self::openConnection()->prepare($query); 
+        $query = self::openConnection()->prepare($query);
         $query->bindValue(":Title", $this->getModel()->getTitle(), PDO::PARAM_STR);
         $query->bindValue(":Link", $this->getModel()->getLink(), PDO::PARAM_STR);
         $query->bindValue(":IsPublic", $this->getModel()->isIsPublic(), PDO::PARAM_BOOL);
@@ -420,7 +428,8 @@ class InternalEventPage extends Page {
         $query->execute();
     }
 
-    protected function edit(): void {
+    protected function edit(): void
+    {
         $this->enterModelDataFromForm();
         $query = "UPDATE " . $this->getTableName() . " 
                   SET Title = :Title, Link = :Link, IsPublic = :IsPublic, 
@@ -429,36 +438,32 @@ class InternalEventPage extends Page {
                       ContentHTML = :ContentHTML, MetaDescription = :MetaDescription, 
                       MetaTags = :MetaTags, Notes = :Notes, EditDateTime = CURDATE()
                   WHERE Id = :Id";
-    
-        $stmt = self::openConnection()->prepare($query);
-        $stmt->bindValue(":Title", $this->getModel()->getTitle(), PDO::PARAM_STR);
-        $stmt->bindValue(":Link", $this->getModel()->getLink(), PDO::PARAM_STR);
-        $stmt->bindValue(":IsPublic", $this->getModel()->isIsPublic(), PDO::PARAM_BOOL);
-        $stmt->bindValue(":IsCancelled", $this->getModel()->isIsCancelled(), PDO::PARAM_BOOL);
-        $stmt->bindValue(":EventDateTime", $this->getModel()->getEventDateTime(), PDO::PARAM_STR);
-        $stmt->bindValue(":PublishDateTime", $this->getModel()->getPublishDateTime(), PDO::PARAM_STR);
-        $stmt->bindValue(":ShortDescription", $this->getModel()->getShortDescription(), PDO::PARAM_STR);
-        $stmt->bindValue(":ContentHTML", $this->getModel()->getContentHTML(), PDO::PARAM_STR);
-        $stmt->bindValue(":MetaDescription", $this->getModel()->getMetaDescription(), PDO::PARAM_STR);
-        $stmt->bindValue(":MetaTags", $this->getModel()->getMetaTags(), PDO::PARAM_STR);
-        $stmt->bindValue(":Notes", $this->getModel()->getNotes(), PDO::PARAM_STR);
-        $stmt->bindValue(":Id", $this->getModel()->getId(), PDO::PARAM_INT);
-    
-        $stmt->execute();
+
+        $query = self::openConnection()->prepare($query);
+        $query->bindValue(":Title", $this->getModel()->getTitle(), PDO::PARAM_STR);
+        $query->bindValue(":Link", $this->getModel()->getLink(), PDO::PARAM_STR);
+        $query->bindValue(":IsPublic", $this->getModel()->isIsPublic(), PDO::PARAM_BOOL);
+        $query->bindValue(":IsCancelled", $this->getModel()->isIsCancelled(), PDO::PARAM_BOOL);
+        $query->bindValue(":EventDateTime", $this->getModel()->getEventDateTime(), PDO::PARAM_STR);
+        $query->bindValue(":PublishDateTime", $this->getModel()->getPublishDateTime(), PDO::PARAM_STR);
+        $query->bindValue(":ShortDescription", $this->getModel()->getShortDescription(), PDO::PARAM_STR);
+        $query->bindValue(":ContentHTML", $this->getModel()->getContentHTML(), PDO::PARAM_STR);
+        $query->bindValue(":MetaDescription", $this->getModel()->getMetaDescription(), PDO::PARAM_STR);
+        $query->bindValue(":MetaTags", $this->getModel()->getMetaTags(), PDO::PARAM_STR);
+        $query->bindValue(":Notes", $this->getModel()->getNotes(), PDO::PARAM_STR);
+        $query->bindValue(":Id", $this->getModel()->getId(), PDO::PARAM_INT);
+
+        $query->execute();
     }
 
-    protected function delete(): void {
+    protected function delete(): void
+    {
         $id = intval($_POST['Id'] ?? 0);
         if ($id > 0) {
             $query = "UPDATE " . $this->getTableName() . " SET IsActive = 0 WHERE Id = :Id";
-            $stmt = self::openConnection()->prepare($query);
-            $stmt->bindValue(":Id", $id, PDO::PARAM_INT);
-            $stmt->execute();
+            $query = self::openConnection()->prepare($query);
+            $query->bindValue(":Id", $id, PDO::PARAM_INT);
+            $query->execute();
         }
     }
-    
-    
-    
-    
 }
-?>

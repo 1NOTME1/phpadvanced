@@ -85,8 +85,8 @@ class TaskPage extends Page
     protected function fetchAll(): array
     {
         $query = "SELECT * FROM " . $this->getTableName() . " WHERE IsActive = 1";
-        $stmt = self::openConnection()->query($query);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $query = self::openConnection()->query($query);
+        return $query->fetchAll(PDO::FETCH_ASSOC);
     }
 
     protected function generateViewAll(): string
@@ -118,10 +118,10 @@ class TaskPage extends Page
     protected function fetchEventTitle(int $eventId): string
     {
         $query = "SELECT Title FROM InternalEvents WHERE Id = :Id";
-        $stmt = self::openConnection()->prepare($query);
-        $stmt->bindValue(':Id', $eventId, PDO::PARAM_INT);
-        $stmt->execute();
-        return $stmt->fetchColumn() ?: 'Unknown';
+        $query = self::openConnection()->prepare($query);
+        $query->bindValue(':Id', $eventId, PDO::PARAM_INT);
+        $query->execute();
+        return $query->fetchColumn() ?: 'Unknown';
     }
 
     protected function generateViewEdit(): string
@@ -212,10 +212,10 @@ class TaskPage extends Page
     protected function fetchById(int $id): array
     {
         $query = "SELECT * FROM " . $this->getTableName() . " WHERE Id = :Id";
-        $stmt = self::openConnection()->prepare($query);
-        $stmt->bindValue(':Id', $id, PDO::PARAM_INT);
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $query = self::openConnection()->prepare($query);
+        $query->bindValue(':Id', $id, PDO::PARAM_INT);
+        $query->execute();
+        return $query->fetch(PDO::FETCH_ASSOC);
     }
 
     protected function generateViewCreate(): string
@@ -300,10 +300,10 @@ class TaskPage extends Page
     protected function generateEventOptions(): string
     {
         $query = "SELECT Id, Title FROM InternalEvents";
-        $stmt = self::openConnection()->query($query);
+        $query = self::openConnection()->query($query);
         $options = "";
 
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
             $options .= "<option value='{$row['Id']}'>{$row['Title']}</option>";
         }
 
@@ -314,19 +314,38 @@ class TaskPage extends Page
     {
         $this->enterModelDataFromForm();
         $query = "INSERT INTO " . $this->getTableName() . " 
-    (Title, IsDone, StartDateTime, Description, Deadline, InternalEventId, CreationDateTime, EditDateTime, Notes, IsActive)
-    VALUES (:Title, :IsDone, :StartDateTime, :Description, :Deadline, :InternalEventId, CURDATE(), CURDATE(), :Notes, 1)";
+        (Title,
+        IsDone,
+        StartDateTime,
+        Description,
+        Deadline,
+        InternalEventId,
+        CreationDateTime,
+        EditDateTime,
+        Notes,
+        IsActive)
+        VALUES (
+        :Title,
+        :IsDone,
+        :StartDateTime,
+        :Description,
+        :Deadline,
+        :InternalEventId,
+        CURDATE(),
+        CURDATE(),
+        :Notes,
+        1)";
 
-        $stmt = self::openConnection()->prepare($query);
-        $stmt->bindValue(":Title", $this->getModel()->getTitle(), PDO::PARAM_STR);
-        $stmt->bindValue(":IsDone", $this->getModel()->getIsDone(), PDO::PARAM_BOOL);
-        $stmt->bindValue(":StartDateTime", $this->getModel()->getStartDateTime(), PDO::PARAM_STR);
-        $stmt->bindValue(":Description", $this->getModel()->getDescription(), PDO::PARAM_STR);
-        $stmt->bindValue(":Deadline", $this->getModel()->getDeadline(), PDO::PARAM_STR);
-        $stmt->bindValue(":InternalEventId", $this->getModel()->getInternalEventId(), PDO::PARAM_INT);
-        $stmt->bindValue(":Notes", $this->getModel()->getNotes(), PDO::PARAM_STR);
+        $query = self::openConnection()->prepare($query);
+        $query->bindValue(":Title", $this->getModel()->getTitle(), PDO::PARAM_STR);
+        $query->bindValue(":IsDone", $this->getModel()->getIsDone(), PDO::PARAM_BOOL);
+        $query->bindValue(":StartDateTime", $this->getModel()->getStartDateTime(), PDO::PARAM_STR);
+        $query->bindValue(":Description", $this->getModel()->getDescription(), PDO::PARAM_STR);
+        $query->bindValue(":Deadline", $this->getModel()->getDeadline(), PDO::PARAM_STR);
+        $query->bindValue(":InternalEventId", $this->getModel()->getInternalEventId(), PDO::PARAM_INT);
+        $query->bindValue(":Notes", $this->getModel()->getNotes(), PDO::PARAM_STR);
 
-        $stmt->execute();
+        $query->execute();
     }
 
     protected function edit(): void
@@ -338,17 +357,17 @@ class TaskPage extends Page
                   EditDateTime = CURDATE(), Notes = :Notes 
               WHERE Id = :Id";
 
-        $stmt = self::openConnection()->prepare($query);
-        $stmt->bindValue(":Title", $this->getModel()->getTitle(), PDO::PARAM_STR);
-        $stmt->bindValue(":IsDone", $this->getModel()->getIsDone(), PDO::PARAM_BOOL);
-        $stmt->bindValue(":StartDateTime", $this->getModel()->getStartDateTime(), PDO::PARAM_STR);
-        $stmt->bindValue(":Description", $this->getModel()->getDescription(), PDO::PARAM_STR);
-        $stmt->bindValue(":Deadline", $this->getModel()->getDeadline(), PDO::PARAM_STR);
-        $stmt->bindValue(":InternalEventId", $this->getModel()->getInternalEventId(), PDO::PARAM_INT);
-        $stmt->bindValue(":Notes", $this->getModel()->getNotes(), PDO::PARAM_STR);
-        $stmt->bindValue(":Id", $this->getModel()->getId(), PDO::PARAM_INT);
+        $query = self::openConnection()->prepare($query);
+        $query->bindValue(":Title", $this->getModel()->getTitle(), PDO::PARAM_STR);
+        $query->bindValue(":IsDone", $this->getModel()->getIsDone(), PDO::PARAM_BOOL);
+        $query->bindValue(":StartDateTime", $this->getModel()->getStartDateTime(), PDO::PARAM_STR);
+        $query->bindValue(":Description", $this->getModel()->getDescription(), PDO::PARAM_STR);
+        $query->bindValue(":Deadline", $this->getModel()->getDeadline(), PDO::PARAM_STR);
+        $query->bindValue(":InternalEventId", $this->getModel()->getInternalEventId(), PDO::PARAM_INT);
+        $query->bindValue(":Notes", $this->getModel()->getNotes(), PDO::PARAM_STR);
+        $query->bindValue(":Id", $this->getModel()->getId(), PDO::PARAM_INT);
 
-        $stmt->execute();
+        $query->execute();
     }
 
     protected function delete(): void
@@ -356,9 +375,9 @@ class TaskPage extends Page
         $id = intval($_POST['Id'] ?? 0);
         if ($id > 0) {
             $query = "UPDATE " . $this->getTableName() . " SET IsActive = 0 WHERE Id = :Id";
-            $stmt = self::openConnection()->prepare($query);
-            $stmt->bindValue(":Id", $id, PDO::PARAM_INT);
-            $stmt->execute();
+            $query = self::openConnection()->prepare($query);
+            $query->bindValue(":Id", $id, PDO::PARAM_INT);
+            $query->execute();
         }
     }
 }
