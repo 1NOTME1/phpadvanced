@@ -129,6 +129,12 @@ class TaskPage extends Page
         $id = $_POST['Id'] ?? 0;
         $task = $this->fetchById($id);
 
+        $startDate = new DateTime($task['StartDateTime']);
+        $startDateFormatted = $startDate->format('Y-m-d');
+
+        $deadline = new DateTime($task['Deadline']);
+        $deadlineFormatted = $deadline->format('Y-m-d');
+
         $isDoneChecked = $task['IsDone'] ? 'checked' : '';
 
         return '
@@ -175,7 +181,7 @@ class TaskPage extends Page
                                     <i class="material-icons-round palette-accent-text-color align-middle">event</i>
                                     Start date
                                 </label>
-                                <input class="form-control validate" type="date" name="StartDateTime" value="' . $task['StartDateTime'] . '">
+                                <input class="form-control validate" type="date" name="StartDateTime" value="' . $startDateFormatted . '">
                             </div>
                         </div>
                         <div class="col-md-12 col-lg-6 col-xxl-4">
@@ -184,7 +190,7 @@ class TaskPage extends Page
                                     <i class="material-icons-round palette-accent-text-color align-middle">today</i>
                                     Deadline
                                 </label>
-                                <input class="form-control validate" type="date" name="Deadline" value="' . $task['Deadline'] . '">
+                                <input class="form-control validate" type="date" name="Deadline" value="' . $deadlineFormatted . '">
                             </div>
                         </div>
                         <div class="col-sm-12">
