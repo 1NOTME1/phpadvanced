@@ -131,6 +131,12 @@ class InternalEventPage extends Page
         $id = $_POST['Id'] ?? 0;
         $event = $this->fetchById($id);
 
+        $eventDateTime = new DateTime($event['EventDateTime']);
+        $eventDateFormatted = $eventDateTime->format('Y-m-d');
+
+        $publishDateTime = new DateTime($event['PublishDateTime']);
+        $publishDateFormatted = $publishDateTime->format('Y-m-d');
+
         return '
             <div class="container">
                 <form method="post">
@@ -194,7 +200,7 @@ class InternalEventPage extends Page
                                     <i class="material-icons-round palette-accent-text-color align-middle">event</i>
                                     Event date
                                 </label>
-                                <input class="form-control validate" type="date" name="EventDateTime" value="' . $event['EventDateTime'] . '">
+                                <input class="form-control validate" type="date" name="EventDateTime" value="' . $eventDateFormatted . '">
                             </div>
                         </div>
                         <div class="col-md-12 col-lg-6 col-xxl-4">
@@ -203,7 +209,7 @@ class InternalEventPage extends Page
                                     <i class="material-icons-round palette-accent-text-color align-middle">today</i>
                                     Publish date
                                 </label>
-                                <input class="form-control validate" type="date" name="PublishDateTime" value="' . $event['PublishDateTime'] . '">
+                                <input class="form-control validate" type="date" name="PublishDateTime" value="' .  $publishDateFormatted . '">
                             </div>
                         </div>
                         <div class="col-sm-12">
