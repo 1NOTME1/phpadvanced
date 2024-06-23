@@ -297,18 +297,20 @@ class TaskPage extends Page
     </div>';
     }
 
-    protected function generateEventOptions(): string
+    protected function generateEventOptions($selectedEventId = null): string
     {
         $query = "SELECT Id, Title FROM InternalEvents";
         $query = self::openConnection()->query($query);
         $options = "";
-
+    
         while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
-            $options .= "<option value='{$row['Id']}'>{$row['Title']}</option>";
+            $selected = ($row['Id'] == $selectedEventId) ? 'selected' : '';
+            $options .= "<option value='{$row['Id']}' $selected>{$row['Title']}</option>";
         }
-
+    
         return $options;
     }
+    
 
     protected function addNew(): void
     {
